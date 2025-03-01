@@ -7,7 +7,10 @@ endif()
 
 add_library(compiler_args INTERFACE)
 target_compile_features(compiler_args INTERFACE cxx_std_20)
-target_compile_options(compiler_args INTERFACE /O2)
+
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    target_compile_options(compiler_args INTERFACE /O2)
+endif()
 
 # target_compile_options(compiler_args INTERFACE /O2)
 add_library(CCUtilities CCUtilities.cpp)
