@@ -7,7 +7,9 @@ endif()
 
 add_library(compiler_args INTERFACE)
 target_compile_features(compiler_args INTERFACE cxx_std_20)
+target_compile_options(compiler_args INTERFACE /O2)
 
 # target_compile_options(compiler_args INTERFACE /O2)
 add_library(CCUtilities CCUtilities.cpp)
 target_link_libraries(CCUtilities compiler_args)
+target_include_directories(MyLibrary PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
