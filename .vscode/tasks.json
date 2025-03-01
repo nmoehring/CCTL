@@ -1,0 +1,19 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "CMake configure and build",
+            "command": "${workspaceFolder}\\build.bat",
+            "args": [
+                "${relativeFileDirname}"
+            ],
+            "options": {},
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build",
+            "detail": "Call CMake to configure and build project."
+        }
+    ],
+    "version": "2.0.0"
+}
