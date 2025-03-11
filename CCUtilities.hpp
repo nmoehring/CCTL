@@ -32,5 +32,11 @@ namespace CCUtilities
             std::advance(it, index);
             return *it;
         }
+
+        T &push_back(T newElement)
+        {
+            data.push_back(newElement);
+            return data.back();
+        }
     };
 }
