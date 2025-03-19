@@ -5,62 +5,96 @@
 #include <stdexcept>
 #include <filesystem>
 
-namespace CCUtilities
+namespace CCTL
 {
+    // I don't like reading binary files
     std::vector<char> readBinaryFile(std::filesystem::path filename);
 
-    template <typename T> // I was going to call it Nullable
-    struct Valueable      // Yes, I know about std::Optional
+    // A std::optional that doesn't mess around
+    template <typename T>
+    struct Valueable // I was going to call it Nullable
     {
     public:
-        Valueable();
-        T operator()
+        T &operator()
         {
             if (!assigned)
                 throw std::runtime_error("Valueable not assigned!");
             return val;
         }
+        Valueable(const Valueable &other) = delete;
+        Valueable(Valueable &&other) noexcept : val(std::move(other.val)), assigned(other.assigned)
+        {
+            other.assigned = false;
+        }
+        Valueable &operator=(const Valeable &other)
+        {
+            if (this == &other)
+                throw std::runtime_error("NO.");
+            val = other.val;
+            assigned = other.assigned;
+            return *this;
+        }
+        Valueable &operator=(Valueable &&other) = delete;
+        ~Valueable() = default;
 
     private:
         T val{};
         bool assigned{false};
     };
 
-    template <typename T>
-    class Linkle
+    // The Linkle's Duo
+    template <typename V>
+    struct Duo
     {
-    public:
-        Linkle(T data) : data{data}
-        {
-            if (!tail && ++size == 1)
-                tail = this;
-            next = this;
-        }
+        Duo(V newVal, Duo *nextDuo) : val{newVal}, next{nextDuo} {}
+        Valueable<V> val{};
+        Duo<V> *next{this};
+    };
 
+    // An easy linked list
+    template <typename T>
+    struct Linkle
+    {
+        Linkle() = default;
+        Linkle(T val) : val{new T{val}}, size{1} {}
         ~Linkle()
         {
-            Linkle *temp = next;
-            next = nullptr;
-            delete data;
+            for (Duo *next{nullptr}; size != 0; --size)
+            {
+                next = duo.next;
+                duo.next = nullptr;
+                delete duo;
+            }
+            duo = nullptr;
         }
-
-        T &operator~() { return data; }
-        Linkle &operator++(int) { return *next; };
-
-        T *data;
-        Linkle *next{this};
-
-        static uint32_t size{0};
-        static Linkle *tail{nullptr};
-
-        T *push(T &newElement)
+        uint64_t size() { return size; }
+        T &link(T val)
         {
-            return (next = new Linkle{std::move(newElement), next}).data;
+            duo.next = new Duo<T>(val, duo.next);
+            duo = duo.next;
+            ++size;
         }
-        Linkle *push(Linkle newLinkle) { return next = newLinkle; }
+        T &operator++(int)
+        {
+            Duo<T> *thisOne = duo;
+            duo = duo.next;
+            return thisOne->val();
+        }
+        T &operator--(int)
+        {
+            T goneVal = duo.val();
+            Duo<T> *gone = duo;
+            Duo<T> *thisOne = duo.next;
+            while (thisOne->next != gone)
+                thisOne = thisOne->next;
+            thisOne->next = gone->next;
+            delete gone;
+            --size;
+            return goneVal;
+        }
 
     private:
-        Linkle(T data, Linkle &next) { ++size; }
-        Linkle(T data, Linkle *next) : data{data}, next{next} { ++size; }
+        uint64_t size{0};
+        Duo<T> *duo{nullptr};
     };
 }
