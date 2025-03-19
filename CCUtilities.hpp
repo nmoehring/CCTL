@@ -13,7 +13,7 @@ namespace CCUtilities
     struct Valueable      // Yes, I know about std::Optional
     {
     public:
-        Valuable();
+        Valueable();
         T operator()
         {
             if (!assigned)
