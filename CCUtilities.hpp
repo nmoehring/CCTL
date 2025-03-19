@@ -9,34 +9,58 @@ namespace CCUtilities
 {
     std::vector<char> readBinaryFile(std::filesystem::path filename);
 
-    template <typename T>
-    class ListWrapper
+    template <typename T> // I was going to call it Nullable
+    struct Valueable      // Yes, I know about std::Optional
     {
     public:
-        std::list<T> data;
-
-        T &operator[](std::size_t index)
+        Valuable();
+        T operator()
         {
-            if (deviceIdx >= m_numDevices)
-                throw std::runtime_error("Device index out of range.");
-            std::list<VknDevice>::iterator it = m_devices.begin();
-            std::advance(it, index);
-            return *it;
+            if (!assigned)
+                throw std::runtime_error("Valueable not assigned!");
+            return val;
         }
 
-        const T &operator[](std::size_t index) const
+    private:
+        T val{};
+        bool assigned{false};
+    };
+
+    template <typename T>
+    class Linkle
+    {
+    public:
+        Linkle(T data) : data{data}
         {
-            if (deviceIdx >= m_numDevices)
-                throw std::runtime_error("Device index out of range.");
-            std::list<VknDevice>::iterator it = m_devices.begin();
-            std::advance(it, index);
-            return *it;
+            if (!tail && ++size == 1)
+                tail = this;
+            next = this;
         }
 
-        T &push_back(T newElement)
+        ~Linkle()
         {
-            data.push_back(newElement);
-            return data.back();
+            Linkle *temp = next;
+            next = nullptr;
+            delete data;
         }
+
+        T &operator~() { return data; }
+        Linkle &operator++(int) { return *next; };
+
+        T *data;
+        Linkle *next{this};
+
+        static uint32_t size{0};
+        static Linkle *tail{nullptr};
+
+        T *push(T &newElement)
+        {
+            return (next = new Linkle{std::move(newElement), next}).data;
+        }
+        Linkle *push(Linkle newLinkle) { return next = newLinkle; }
+
+    private:
+        Linkle(T data, Linkle &next) { ++size; }
+        Linkle(T data, Linkle *next) : data{data}, next{next} { ++size; }
     };
 }
