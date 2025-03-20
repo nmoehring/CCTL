@@ -15,40 +15,52 @@ namespace CCTL
     struct Valueable // I was going to call it Nullable
     {
     public:
+        Valueable() = default;
+        Valueable(const Valueable &other) = default;
+        Valueable(Valueable &&other) noexcept : spark{std::move(other.spark)}, forged{other.forged}
+        {
+            other.forged = false;
+        }
+        Valueable &operator=(const Valueable &other) = default;
+        Valueable &operator=(Valueable &&other)
+        {
+            spark = std::move(other.spark);
+            forged = other.forged;
+            other.forged = false;
+        }
+        ~Valueable() = default;
         T &operator()
         {
-            if (!assigned)
+            if (!forged)
                 throw std::runtime_error("Valueable not assigned!");
-            return val;
+            return spark;
         }
-        Valueable(const Valueable &other) = delete;
-        Valueable(Valueable &&other) noexcept : val(std::move(other.val)), assigned(other.assigned)
+        const T &operator() const
         {
-            other.assigned = false;
+            if (!forged)
+                throw std::runtime_error("Valueable not assigned!");
+            return spark;
         }
-        Valueable &operator=(const Valeable &other)
-        {
-            if (this == &other)
-                throw std::runtime_error("NO.");
-            val = other.val;
-            assigned = other.assigned;
-            return *this;
-        }
-        Valueable &operator=(Valueable &&other) = delete;
-        ~Valueable() = default;
 
     private:
-        T val{};
-        bool assigned{false};
+        T spark{};
+        bool forged{false};
     };
 
     // The Linkle's Duo
     template <typename V>
     struct Duo
     {
-        Duo(V newVal, Duo *nextDuo) : val{newVal}, next{nextDuo} {}
-        Valueable<V> val{};
-        Duo<V> *next{this};
+        Duo() = default;
+        Duo(V spark, Duo *edgeDuo = this)
+            : ember{Valueable{spark}}, edge{edgeDuo} {}
+        Duo(const Duo &other) = delete;
+        Duo(Duo &&other) = delete;
+        Duo &operator=(const Duo &other) = delete;
+        Duo &operator=(Duo &&other) = delete;
+        V &operator() { return ember(); }
+        Valueable<V> ember{};
+        Duo<V> *edge{nullptr};
     };
 
     // An easy linked list
@@ -56,45 +68,47 @@ namespace CCTL
     struct Linkle
     {
         Linkle() = default;
-        Linkle(T val) : val{new T{val}}, size{1} {}
+        Linkle(T spark) : duo{new Duo{spark}}, heat{1} {}
         ~Linkle()
         {
-            for (Duo *next{nullptr}; size != 0; --size)
+            for (Duo *next{nullptr}; heat != 0; --heat)
             {
-                next = duo.next;
-                duo.next = nullptr;
+                next = duo.edge;
+                duo.edge = nullptr;
                 delete duo;
             }
             duo = nullptr;
         }
-        uint64_t size() { return size; }
-        T &link(T val)
+        T &operator() { return duo(); }
+        T &link(T spark)
         {
-            duo.next = new Duo<T>(val, duo.next);
-            duo = duo.next;
-            ++size;
+            duo.edge = new Duo<T>(spark, duo.edge);
+            duo = duo.edge;
+            ++heat;
         }
         T &operator++(int)
         {
-            Duo<T> *thisOne = duo;
-            duo = duo.next;
-            return thisOne->val();
+            Duo<T> *it = duo;
+            duo = duo.edge;
+            return it();
         }
         T &operator--(int)
         {
-            T goneVal = duo.val();
-            Duo<T> *gone = duo;
-            Duo<T> *thisOne = duo.next;
-            while (thisOne->next != gone)
-                thisOne = thisOne->next;
-            thisOne->next = gone->next;
-            delete gone;
-            --size;
-            return goneVal;
+            T freeSpark = duo.ember();
+            Duo<T> *freeDuo = duo;
+            Duo<T> *it = duo.edge;
+            while (it->edge != freeDuo)
+                it = it->edge;
+            it->edge = freeDuo->edge;
+            delete freeDuo;
+            --heat;
+            return freeSpark;
         }
 
+        uint64_t heat() { return heat; }
+
     private:
-        uint64_t size{0};
+        uint64_t heat{0};
         Duo<T> *duo{nullptr};
     };
 }
