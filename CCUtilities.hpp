@@ -53,7 +53,7 @@ namespace CCTL
     {
         Duo() = default;
         Duo(V spark, Duo *edgeDuo = this)
-            : ember{Valueable{spark}}, edge{edgeDuo} {}
+            : ember{spark}, edge{edgeDuo} {}
         Duo(const Duo &other) = delete;
         Duo(Duo &&other) = delete;
         Duo &operator=(const Duo &other) = delete;
