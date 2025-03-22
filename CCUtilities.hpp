@@ -14,6 +14,10 @@ namespace CCTL
     template <typename T>
     struct Valueable // I was going to call it Nullable
     {
+    private:
+        T spark{};
+        bool forged{false};
+
     public:
         Valueable() = default;
         Valueable(const Valueable &other) = default;
@@ -28,6 +32,11 @@ namespace CCTL
             forged = other.forged;
             other.forged = false;
         }
+        void operator=(T spark)
+        {
+            this->spark = spark;
+            forged = true;
+        }
         ~Valueable() = default;
         T &operator()
         {
@@ -41,16 +50,15 @@ namespace CCTL
                 throw std::runtime_error("Valueable not assigned!");
             return spark;
         }
-
-    private:
-        T spark{};
-        bool forged{false};
     };
 
     // The Linkle's Duo
     template <typename V>
     struct Duo
     {
+        Valueable<V> ember{};
+        Duo<V> *edge{nullptr};
+
         Duo() = default;
         Duo(V spark, Duo *edgeDuo = this)
             : ember{spark}, edge{edgeDuo} {}
@@ -59,14 +67,17 @@ namespace CCTL
         Duo &operator=(const Duo &other) = delete;
         Duo &operator=(Duo &&other) = delete;
         V &operator() { return ember(); }
-        Valueable<V> ember{};
-        Duo<V> *edge{nullptr};
     };
 
     // An easy linked list
     template <typename T>
     struct Linkle
     {
+    private:
+        uint64_t heat{0};
+        Duo<T> *duo{nullptr};
+
+    public:
         Linkle() = default;
         Linkle(T spark) : duo{new Duo{spark}}, heat{1} {}
         ~Linkle()
@@ -106,9 +117,5 @@ namespace CCTL
         }
 
         uint64_t heat() { return heat; }
-
-    private:
-        uint64_t heat{0};
-        Duo<T> *duo{nullptr};
     };
 }
