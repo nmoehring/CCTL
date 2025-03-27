@@ -2,17 +2,69 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "CMake configure and build",
-            "command": "${workspaceFolder}\\build.bat",
+            "label": "CMake configure and build [DEBUG]",
+            "command": "cmake",
             "args": [
-                "${relativeFileDirname}"
+                "-P build.cmake",
+                "--", //separates cmake args from build.cmake script args
+                "-CONFIG Debug"
             ],
             "options": {},
             "problemMatcher": [
                 "$msCompile"
             ],
             "group": "build",
-            "detail": "Call CMake to configure and build project."
+            "detail": "Call CMake to configure and build project for debugging."
+        },
+        {
+            "type": "shell",
+            "label": "CMake configure and build [RELEASE]",
+            "command": "cmake",
+            "args": [
+                "-P build.cmake",
+                "--",
+                "-CONFIG Release"
+            ],
+            "options": {},
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build",
+            "detail": "Call CMake to configure and build project for release."
+        },
+        {
+            "type": "shell",
+            "label": "CMake configure and build w/ log [DEBUG]",
+            "command": "cmake",
+            "args": [
+                "-P build.cmake",
+                "--",
+                "-CONFIG Debug",
+                "-LOG"
+            ],
+            "options": {},
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build",
+            "detail": "Call CMake to configure and build project for release."
+        },
+        {
+            "type": "shell",
+            "label": "CMake configure and build w/ trace log [DEBUG]",
+            "command": "cmake",
+            "args": [
+                "-P build.cmake",
+                "--",
+                "-CONFIG Debug",
+                "-TRACE_LOG"
+            ],
+            "options": {},
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build",
+            "detail": "Call CMake to configure and build project for release."
         }
     ],
     "version": "2.0.0"

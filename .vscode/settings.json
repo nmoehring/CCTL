@@ -1,5 +1,16 @@
 {
     "cSpell.words": [
-        "Linkle"
-    ]
+        "CCTL",
+        "googletest",
+        "gtest",
+        "GTESTING",
+        "Linkle",
+        "LOCALAPPDATA",
+        "lume",
+        "mintest",
+        "MSVC"
+    ],
+    "files.associations": {
+        "fstream": "cpp"
+    }
 }

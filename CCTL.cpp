@@ -1,6 +1,6 @@
-#include "CCUtilities.hpp"
+#include "CCTL.hpp"
 
-namespace CCUtilities
+namespace CCTL
 {
     std::vector<char> readBinaryFile(std::filesystem::path filename)
     {
